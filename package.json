@@ -2,9 +2,9 @@
   "name": "dsassessment-offline-demo",
   "version": "1.0.0",
   "description": "DSAssessment Offline Demo",
-  "main": "server.js",
+  
   "scripts": {
-    "test": "node server.js"
+    
   },
   "author": "Ashutosh Kalambe",
   "license": "ISC",
