@@ -4,7 +4,7 @@
   "description": "DSAssessment Offline Demo",
   
   "scripts": {
-    
+    "start":"node index.html"
   },
   "author": "Ashutosh Kalambe",
   "license": "ISC",
