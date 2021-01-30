@@ -19,7 +19,7 @@ self.addEventListener("install", function(event) {
           */
           return cache.addAll([
             '/',
-            'css/style.css',
+            'style.css',
             'dashboard.html',
             'exam.html',
             'startquestions.html',
