@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <title>Quiz App</title>
+    
+</head>
+<body>
+    
+<div class="container">
+    <div class="wrapper">
+        <div class="row">
+            <h2 id="coursename"></h2>
+        </div>
+    <br>
+    <div class="row">
+        <button class="btn" id="btn" onclick="start()">Start</button>
+    </div>
+    </div>
+</div>
+<script>
+    let courseid;
+    if(localStorage.getItem("userid") != null){
+        //true
+        const userid = localStorage.getItem("userid")
+        const pgid = localStorage.getItem("pgid")
+        const url = "https://api.digitalsakshar.com/api/Assessment/GetCalExamUserSliderList/"+userid+"/"+pgid
+        $.getJSON(url,(data) => {
+            courseid = data[0].courseid
+            document.getElementById("coursename").innerHTML = data[0].coursename
+        })
+    }else{
+        window.location.href = "/"
+    }
+    if(courseid == undefined){
+        document.getElementById("coursename").innerHTML = "No Exam Found"
+        document.getElementById("btn").style.display = 'none'
+    }
+</script>
+    <script>
+        function start(){
+            localStorage.setItem("courseid",courseid)
+            window.location.href="/startquestions.html"
+        }
+    </script>
+</body>
+</html>

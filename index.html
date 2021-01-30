@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <title>Quiz App</title>
+    <link rel="shortcut icon" type="image/jpg" href="/favicon.ico"/>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>localStorage.clear();</script>
+</head>
+<body>
+    <div class="container">
+       <div class="wrapper">
+        <div class="heading">
+            <h1>Sign In</h1>
+        </div>
+        <div class="form">
+         <div class="input-control">
+             <input type="text" name="username" id="username" autocomplete="off" class="input-field" placeholder="Username">
+         </div>
+         <div class="input-control">
+             <input type="password" name="passwrod" id="password" class="input-field" placeholder="Password">
+         </div>
+         <div class="input-control">
+             <button class="input-submit" onclick="login()">Login</button>
+         </div>
+     </div>
+       </div>
+    </div>
+    
+    <script>
+        if('serviceWorker' in navigator){
+            console.log('CLIENT: service worker registration in progress.');
+            navigator.serviceWorker.register('/sw.js').then(function() {
+                console.log('CLIENT: service worker registration complete.');
+            }, function() {
+                console.log('CLIENT: service worker registration failure.');
+            });
+        } else {
+            console.log('CLIENT: service worker is not supported.');
+        }
+    </script>
+   <script>
+       function login(){
+           var username = document.getElementById("username").value
+           var password = document.getElementById("password").value
+           if(username.length == 0 && password.length == 0){
+                alert("Please enter something")
+           }else{
+            if(username.length == 0){
+               alert("Enter Username")
+           }
+           if(password.length == 0){
+            alert("Enter Password")
+           }
+           }
+           const url = "https://api.digitalsakshar.com/api/Assessment/Login"
+           const data = {
+               username:username,
+               password:password
+           }
+
+           $.post(url,data,(data,status) =>{
+                if(status == "success"){
+                    if(data[0].Result == "NotFound"){
+                        alert("User Not Found")
+                    }
+                    if(data[0].Result == "Success"){
+                        localStorage.setItem("fullname",data[0].fullname)
+                        localStorage.setItem("userid",data[0].userid)
+                        localStorage.setItem("username",data[0].username)
+                        localStorage.setItem("roleid",data[0].roleid)
+                        localStorage.setItem("pgid",data[0].pgid)
+                        window.location.href = "/dashboard.html"
+                        //change window
+                    }
+                    if(data[0].Result == "Inactive"){
+                        alert("Wrong Username or Password")
+                    }
+                }else{
+                    alert("Issue")
+                }
+                // console.log(data)
+                // console.log(status)
+           })
+
+       }
+   </script>
+</body>
+</html>

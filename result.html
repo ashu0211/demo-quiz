@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <div id="loader-container">
+        <div class="loader" id="loader"></div>
+    </div>
+    <div class="row" id="" style="display: none;">
+        <button class="button draw" onclick="window.location.href = '/summary.html'">View Summary</button>
+        <button class="button draw" onclick="window.location.href = '/'">Go Home</button>
+    </div>
+    <div class="border-box" id="border-box" style="display: none;">
+        <h1 align="center">Report</h1>
+        <hr color="#cccccc">
+        <div class="row">
+            <p>Learner Name : <span id="learner"></span></p>
+            <p>Name : <span id="name"></span></p>
+        </div>
+        <div class="row">
+            <p>Marks : <span id="marks"></span></p>
+            <p>No Of Questions: <span id="noq"></span></p>
+        </div>
+        <div class="row">
+            <p>Obtained Marks : <span id="obtained"></span></p>
+            <p>No Of Correct Questions: <span id="correct"></span></p>
+        </div>
+
+        <table id="table">
+            <tr>
+                <th>Sr No</th>
+                <th>Name of the Competencies</th>
+                <th>Out of</th>
+                <th>Obtained Marks</th>
+                <th>Competency Achieved</th>
+            </tr>
+        </table>
+    </div>
+    <script>
+            var userid = localStorage.getItem("userid")
+            var examid = localStorage.getItem("examid")
+            var euserid = localStorage.getItem("euserid")
+            var questionLength = parseInt(localStorage.getItem("ql"))
+            var url = "https://api.digitalsakshar.com/api/Assessment/AddExamData/" + userid + "/" + examid + "/" + euserid
+            const ques = JSON.parse(localStorage.getItem("ques"))
+            for (let i = 1; i <= questionLength; i++) {
+                const data = {
+                    questionid: ques[i - 1].questionid,
+                    questiontext: "",
+                    answer1: "",
+                    answer2: "",
+                    answer3: "",
+                    answer4: "",
+                    rightanswer: localStorage.getItem("q" + i),
+                    createdby: userid
+                }
+                console.log(JSON.stringify(data));
+                $.post(url, data, (res) => {
+                    //get report
+                    if (i == questionLength) {
+                        getReport()
+                    }
+                })
+            }
+
+            function getReport() {
+            var userid = localStorage.getItem("userid")
+            var examid = localStorage.getItem("examid")
+            var euserid = localStorage.getItem("euserid")
+            var url = "https://api.digitalsakshar.com/api/Assessment/GetExamReport/"+userid+"/"+examid+"/"+euserid
+            var table = document.getElementById("table")
+            $.getJSON(url, (data) => {
+                console.log(data);
+                var len = data.length
+                for (let i = 1; i <= len; i++) {
+                    var row = table.insertRow(i)
+                    var sr = row.insertCell(0)
+                    var cmpname = row.insertCell(1)
+                    var outof = row.insertCell(2)
+                    var obt = row.insertCell(3)
+                    var cmpA = row.insertCell(4)
+                    sr.innerHTML = i
+                    cmpname.innerHTML = data[i - 1].competencyname
+                    outof.innerHTML = data[i - 1].markperquestion
+                    obt.innerHTML = data[i - 1].markscored
+                    if (data[i - 1].percentage > 50 || data[i - 1].percentage == 50) {
+                        //add div with green 
+                        var node = document.createElement("div")
+                        var icon = document.createElement("i")
+                        node.setAttribute("align", "center")
+                        icon.setAttribute("class", "material-icons")
+                        icon.setAttribute("style", "font-size:30px;color:green")
+                        icon.innerHTML = "done_outline"
+                        node.appendChild(icon)
+                        cmpA.appendChild(node)
+                    }
+                    if (data[i - 1].percentage < 50) {
+                        //add div with red
+                        var node = document.createElement("div")
+                        var icon = document.createElement("i")
+                        node.setAttribute("align", "center")
+                        icon.setAttribute("class", "material-icons")
+                        icon.innerHTML = "done_outline"
+                        icon.setAttribute("style", "font-size:30px;color:red")
+                        node.appendChild(icon)
+                        cmpA.appendChild(node)
+                    }
+                }
+            })
+
+            var url2 = "https://api.digitalsakshar.com/api/Assessment/GetMarks/"+userid+"/"+examid+"/"+euserid
+            $.getJSON(url2, (data) => {
+                document.getElementById("learner").innerText = data.fullname
+                document.getElementById("name").innerText = data.examname
+                document.getElementById("marks").innerText = data.totalmarks
+                document.getElementById("noq").innerText = data.noofquestion
+                document.getElementById("obtained").innerText = parseInt(data.noofcorrectans)*parseInt(data.markperquestion)
+                document.getElementById("correct").innerText = data.noofcorrectans
+            })
+
+
+            document.getElementById("loader-container").style.display = 'none'
+            document.getElementById("border-box").style.display = 'block'
+            document.getElementById("row").style.display="flex"
+        }
+    </script>
+</body>
+
+</html>

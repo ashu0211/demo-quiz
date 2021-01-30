@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <title>Quiz App</title>
+    
+</head>
+<body>
+    <div class="container">
+        <div class="wrapper">
+            <select name="language_select" id="language-select" onchange="valueChanged(this)">
+                <option value="0">Select Language</option>
+            </select>
+            <div class="content" id="content" style="display: none;">
+                <br>
+                <div class="row">
+                    <h4><span>Name : </span> <span id="name"></span></h4>
+                </div>  
+                <br>
+                <div class="row">
+                    <h4><span>No of Minutes : </span> <span id="noofminutes"></span></h4>
+                    <h4><span>No of Questions : </span> <span id="noofquestions"></span></h4>
+                </div>
+                <br>
+                <h3>Instructions : </h3>
+                <ol>
+                    <li>Before starting the test,check if you are in place with no disturbance.</li>
+                    <li>Mark your answers by selecting the right option.</li>
+                    <li>Remeber that you mark only one best answer for each question.</li>
+                    <li>The test will automatically end after the maximum time allocated.</li>
+                </ol>
+                <br>
+                <div class="row">
+                    <button class="button draw" onclick="start()">Start</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var examid
+        var userid = localStorage.getItem("userid")
+        
+        var courseid = localStorage.getItem("courseid")
+        var selectedLang 
+        const select = document.getElementById("language-select")
+        if(courseid == null){
+            window.location.href = "/"
+        }else{
+            
+                $.getJSON("https://api.digitalsakshar.com/api/Assessment/FillDropDown?column1=%20distinct%20ExamMaster.language&column2=ExamMaster.language&tablename=ExamMaster&whr=inner%20join%20CourseMaster%20on%20CourseMaster.courseid=ExamMaster.courseid%20%20where%20CourseMaster.courseid=%27"+courseid+"%27",(data) =>{
+                    for(index in data){
+                    select.options[select.options.length] = new Option(data[index].column1,data[index].column1)
+                }   
+                })
+        
+        }
+        function valueChanged(select){
+            if(select.value == 0){
+                document.getElementById("content").style.display = "none";
+            }else{
+                document.getElementById("content").style.display = "block";
+                const url = "https://api.digitalsakshar.com/api/Assessment/GetExamMaster/"+courseid+"/"+select.value
+                $.getJSON(url,(data) => {
+                    console.log(data)
+                    document.getElementById("name").innerText = data.examname
+                    document.getElementById("noofminutes").innerText = data.noofmin
+                    document.getElementById("noofquestions").innerText = data.noofquestion
+                    localStorage.setItem("timer",data.noofmin)
+                    examid = data.examid
+                    localStorage.setItem("examid",examid)
+                })
+            }
+        }
+        function start(){
+            var euid
+            $.getJSON("https://api.digitalsakshar.com/api/Assessment/CheckExamUser/"+userid+"/"+examid+"/"+courseid,(data) => {
+                euid = data
+                localStorage.setItem("euserid",euid)
+            })
+            $.getJSON("https://api.digitalsakshar.com/api/Assessment/GetExam/"+examid+"/"+euid+"/"+userid,(data) => {
+                localStorage.setItem("ques",JSON.stringify(data))
+                const json = JSON.parse(localStorage.getItem("ques"))
+            var totalq = json.length;
+            localStorage.setItem("ql",totalq)
+            })
+            localStorage.setItem("currentQuestion","1")
+            localStorage.setItem("result","0")
+            
+            setInterval(() => {
+                window.location.href = "/exam.html"
+            },2000);
+        }
+    </script>
+</body>
+</html>

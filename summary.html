@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+    <div class="row v-center">
+        <button class="button draw" onclick="window.location.href = '/result.html'">Back</button>
+        <h1>Result Summary</h1>
+        <button class="button draw" onclick="window.location.href = '/'">Go Home</button>
+    </div>  
+    <div class="border-box">
+        <div class="row">
+            <p>Student id : <span id="stdid"></span></p>
+            <p>No Of Questions : <span id="noq"></span></p>
+        </div>
+        <div class="row">
+            <p>Student Name : <span id="name"></span></p>
+            <p>Marks : <span id="marks"></span></p>
+        </div>
+        <div class="row">
+            <p>Correct Answer : <span id="correct"></span></p>
+            <p>Wrong Answer : <span id="wrong"></span></p>
+        </div>
+        <div class="row">
+            <p>Obtained Marks : <span id="obt"></span></p>
+        </div>
+        <hr style="margin-top: 20px">
+        <div class="summary" id="summary"></div>
+    </div>
+
+
+    <script>
+        var userid = localStorage.getItem("userid")
+            var examid = localStorage.getItem("examid")
+            var euserid = localStorage.getItem("euserid")
+        var url = "https://api.digitalsakshar.com/api/Assessment/GetMarks/"+userid+"/"+examid+"/"+euserid;
+        $.getJSON(url,(data) => {
+            document.getElementById("stdid").innerText = data.userid
+            document.getElementById("noq").innerText = data.noofquestion   
+            document.getElementById("name").innerText = data.fullname
+            document.getElementById("marks").innerText = parseInt(data.markperquestion)*parseInt(data.noofcorrectans)
+            document.getElementById("correct").innerText = data.noofcorrectans
+            document.getElementById("wrong").innerText = data.wrongans
+            document.getElementById("obt").innerText = data.noofquestion
+        })
+        var url2 = "https://api.digitalsakshar.com/api/Assessment/GetExamSummary/"+euserid//euid
+        $.getJSON(url2,(data)=>{
+            var summary = document.getElementById("summary")
+            for(let i = 0;i<data.length;i++){
+                var count = i+1
+                var head = document.createElement("h4")
+                head.innerHTML =  count+". "+data[i].questiontext
+                
+                    var row1 = document.createElement("div")
+                    row1.setAttribute("class","row")
+                    var p1 = document.createElement("p")
+                    
+                    p1.innerHTML = "A: "+data[i].answer1
+                    var p2 = document.createElement("p")
+                    
+                    p2.innerHTML = "B: "+data[i].answer2
+                    var row2 = document.createElement("div")
+                    row2.setAttribute("class","row")
+                    var p3 = document.createElement("p")
+                    
+                    p3.innerHTML = "C: "+data[i].answer3
+                    var p4 = document.createElement("p")
+                    
+                    var row3 = document.createElement("div")
+                    row3.setAttribute("class","row")
+                    var p5 = document.createElement("p")
+                    var p6 = document.createElement("p")
+
+                    p5.innerHTML = "Your Answer: "+data[i].givenans
+                    p6.innerHTML = "Correct Answer: "+data[i].rightanswer
+
+                    p4.innerHTML = "D: "+data[i].answer4
+                    row1.appendChild(p1)
+                    row1.appendChild(p2)
+                    row2.appendChild(p3)
+                    row2.appendChild(p4)
+                    row3.appendChild(p5)
+                    row3.appendChild(p6)
+                    summary.appendChild(head)
+                summary.appendChild(row1)
+                summary.appendChild(row2)
+                summary.appendChild(row3)
+                summary.appendChild(document.createElement('hr'))
+            }
+        })
+    </script>
+
+</body>
+</html>

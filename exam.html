@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <title>Quiz App</title>
+    
+</head>
+<body>
+    
+    <div class="box">
+        <div class="row space-around">
+            <h4><span id="currentQuestion">1</span> out of <span id="totalQuestions">10</span></h4>
+            <h4 id="timer-count"></h4>
+        </div>
+        <div class="box2">
+            <h3 id="questionText"></h3>
+            <br>
+            <br>
+            <div class="row">
+                <input type="radio" id="radio1" value="1" name="radio-group">
+                <label for="radio1" id="answer1">Apple</label>
+                <input type="radio" id="radio2" value="2" name="radio-group">
+                <label for="radio2" id="answer2">Apple</label>
+            </div>
+            <br>
+            <div class="row">
+                <input type="radio" id="radio3" value="3" name="radio-group">
+                <label for="radio3" id="answer3">Apple</label>
+                <input type="radio" id="radio4" value="4" name="radio-group">
+                <label for="radio4" id="answer4">Apple</label>
+            </div>
+            <br>
+            <br>
+            <div class="row">
+                <button class="button draw" onclick="next()">Next</button>
+            </div>
+        </div>
+    </div>
+    
+<script>
+    var correctAns
+    var time
+    if(localStorage.getItem("time") == null){
+         time = parseInt(localStorage.getItem("timer"))*60
+    }else{
+        time = localStorage.getItem("time")
+    }
+    
+    var display = document.getElementById("timer-count")
+    
+    startTimer(time,display)
+    function startTimer(duration, display) {
+    var timer = duration, minutes, seconds;
+    setInterval(function () {
+        
+        minutes = parseInt(timer / 60, 10);
+        seconds = parseInt(timer % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.textContent = minutes + ":" + seconds;
+
+        if (--timer < 0) {
+            window.location.href ="/result.html"
+        }
+        localStorage.setItem("time",timer)
+    }, 1000);
+}
+</script>
+    <script>
+        var selected = 0;
+        function next(){
+            var radio1 = document.getElementById("radio1")
+            var radio2 = document.getElementById("radio2")
+            var radio3 = document.getElementById("radio3")
+            var radio4 = document.getElementById("radio4")
+            if(radio1.checked){
+                selected = 1
+            }
+            if(radio2.checked){
+                selected = 2
+            }
+            if(radio3.checked){
+                selected = 3
+            }
+            if(radio4.checked){
+                selected = 4
+            }
+            if(selected == 0){
+                alert("please select an answer")
+				return;
+            }
+            if(selected == correctAns){
+                var res = localStorage.getItem("result")
+                res++;
+                localStorage.setItem("result",res)
+            }
+            var cq = localStorage.getItem("currentQuestion")
+            localStorage.setItem("q"+cq,selected)
+            localStorage.setItem("currentQuestion",parseInt(cq)+1)
+            paint()
+        }
+        function paint(){
+            selected = 0;
+            var index = localStorage.getItem("currentQuestion")
+            const json = JSON.parse(localStorage.getItem("ques"))
+            var totalq = json.length;
+            localStorage.setItem("ql",totalq)
+            if(index > totalq){
+                window.location.href = "/result.html"
+            }else{
+            var currentQuestion = document.getElementById("currentQuestion")
+            var totalQuestions = document.getElementById("totalQuestions")
+            var questionText = document.getElementById("questionText")
+            var answer1 = document.getElementById("answer1")
+            var answer2 = document.getElementById("answer2")
+            var answer3 = document.getElementById("answer3")
+            var answer4 = document.getElementById("answer4")
+
+            questionText.innerText=""
+
+            Array.from( document.querySelectorAll('input[name="radio-group"]:checked'), input => input.checked = false );
+
+            for(let i=1;i<=json.length;i++){
+                if(index == i){
+                    currentQuestion.innerText = index
+                    totalQuestions.innerText = json.length
+                    // questionText.innerText = json[i-1].questiontext
+                    questionText.insertAdjacentHTML('beforeend',json[i-1].questiontext)
+                    answer1.innerText = json[i-1].answer1
+                    answer2.innerText = json[i-1].answer2
+                    answer3.innerText = json[i-1].answer3
+                    answer4.innerText = json[i-1].answer4
+                    correctAns = json[i-1].rightanswer
+                }
+            }
+            }
+
+        }
+    </script>
+    <script>
+        if(localStorage.getItem("ques") == null){
+            window.location.href = "/"
+        }else{
+            paint()
+        }
+    </script>
+</body>
+</html>
